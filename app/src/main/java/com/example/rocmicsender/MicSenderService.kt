@@ -16,6 +16,7 @@ import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -181,16 +182,35 @@ class MicSenderService : Service() {
         val sender = run.sender
         try {
             val shortBuf = ShortArray(run.bufferSamples)
+            val stereoBuf = FloatArray(run.bufferSamples * 2)
             while (!run.cancelled) {
                 val readSamples = record.read(shortBuf, 0, shortBuf.size)
-                if (readSamples > 0) {
-                    val stereoFloats = FloatArray(readSamples * 2)
-                    for (i in 0 until readSamples) {
-                        val f = shortBuf[i] / 32768.0f
-                        stereoFloats[i * 2] = f
-                        stereoFloats[i * 2 + 1] = f
+                when {
+                    readSamples > 0 -> {
+                        for (i in 0 until readSamples) {
+                            val f = shortBuf[i] / 32768.0f
+                            stereoBuf[i * 2] = f
+                            stereoBuf[i * 2 + 1] = f
+                        }
+                        val samples = if (readSamples == run.bufferSamples) {
+                            stereoBuf
+                        } else {
+                            stereoBuf.copyOf(readSamples * 2)
+                        }
+                        sender.sendFloats(samples)
                     }
-                    sender.sendFloats(stereoFloats)
+                    readSamples < 0 -> {
+                        Log.e(TAG, "AudioRecord.read() failed with error $readSamples")
+                        break
+                    }
+                    else -> {
+                        try {
+                            Thread.sleep(ZERO_READ_DELAY_MS)
+                        } catch (e: InterruptedException) {
+                            Thread.currentThread().interrupt()
+                            break
+                        }
+                    }
                 }
             }
         } finally {
@@ -302,5 +322,7 @@ class MicSenderService : Service() {
         const val ACTION_STOP = "ACTION_STOP"
         private const val NOTIFICATION_ID = 101
         private const val CHANNEL_ID = "roc_mic_channel"
+        private const val TAG = "MicSenderService"
+        private const val ZERO_READ_DELAY_MS = 5L
     }
 }
