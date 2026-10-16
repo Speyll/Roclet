@@ -18,14 +18,31 @@ import android.os.IBinder
 import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 
 class MicSenderService : Service() {
+
+    /** Lifecycle state of the streaming service, published to bound UI listeners. */
+    enum class State { STOPPED, STARTING, STREAMING, STOPPING, ERROR }
+
+    /** Callback delivered on the main thread with the current state and last error. */
+    fun interface StateListener {
+        fun onStateChanged(state: State, error: String?)
+    }
 
     private val binder = LocalBinder()
 
     @Volatile
     private var activeRun: StreamingRun? = null
+
+    @Volatile
+    private var state: State = State.STOPPED
+
+    @Volatile
+    private var lastError: String? = null
+
+    private val stateListeners = CopyOnWriteArrayList<StateListener>()
 
     private var wakeLock: PowerManager.WakeLock? = null
     private var wifiLock: WifiManager.WifiLock? = null
@@ -33,6 +50,31 @@ class MicSenderService : Service() {
     inner class LocalBinder : Binder() {
         val isRunning: Boolean
             get() = activeRun != null
+
+        val state: State
+            get() = this@MicSenderService.state
+
+        val lastError: String?
+            get() = this@MicSenderService.lastError
+
+        fun addStateListener(listener: StateListener) {
+            if (!stateListeners.contains(listener)) {
+                stateListeners.add(listener)
+            }
+            listener.onStateChanged(this@MicSenderService.state, this@MicSenderService.lastError)
+        }
+
+        fun removeStateListener(listener: StateListener) {
+            stateListeners.remove(listener)
+        }
+    }
+
+    private fun setState(newState: State, error: String? = null) {
+        state = newState
+        lastError = error
+        for (listener in stateListeners) {
+            listener.onStateChanged(newState, error)
+        }
     }
 
     /**
@@ -48,6 +90,10 @@ class MicSenderService : Service() {
         @Volatile
         var cancelled = false
             private set
+
+        /** Human-readable reason set by the worker when capture fails; null on a normal stop. */
+        @Volatile
+        var failureMessage: String? = null
 
         var thread: Thread? = null
 
@@ -106,6 +152,8 @@ class MicSenderService : Service() {
     private fun startStreaming(ip: String, sourcePort: Int, repairPort: Int) {
         if (activeRun != null) return
 
+        setState(State.STARTING)
+
         var record: AudioRecord? = null
         var sender: RocAudioSender? = null
         var run: StreamingRun? = null
@@ -153,7 +201,9 @@ class MicSenderService : Service() {
 
             activeRun = startedRun
             startedRun.thread?.start()
+            setState(State.STREAMING)
         } catch (t: Throwable) {
+            Log.e(TAG, "Failed to start streaming", t)
             val partiallyStartedRun = run
             if (partiallyStartedRun != null) {
                 activeRun = null
@@ -173,6 +223,7 @@ class MicSenderService : Service() {
                 stopForeground(STOP_FOREGROUND_REMOVE)
             } catch (_: Throwable) {
             }
+            setState(State.ERROR, getString(R.string.error_start_failed))
             stopSelf()
         }
     }
@@ -200,7 +251,10 @@ class MicSenderService : Service() {
                         sender.sendFloats(samples)
                     }
                     readSamples < 0 -> {
-                        Log.e(TAG, "AudioRecord.read() failed with error $readSamples")
+                        if (!run.cancelled) {
+                            Log.e(TAG, "AudioRecord.read() failed with error $readSamples")
+                            run.failureMessage = getString(R.string.error_capture_failed)
+                        }
                         break
                     }
                     else -> {
@@ -212,6 +266,11 @@ class MicSenderService : Service() {
                         }
                     }
                 }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Audio worker failed", e)
+            if (!run.cancelled) {
+                run.failureMessage = getString(R.string.error_stream_failed)
             }
         } finally {
             run.releaseResources()
@@ -227,12 +286,19 @@ class MicSenderService : Service() {
             stopForeground(STOP_FOREGROUND_REMOVE)
         } catch (_: Throwable) {
         }
+        val failure = run.failureMessage
+        if (failure != null) {
+            setState(State.ERROR, failure)
+        } else {
+            setState(State.STOPPED)
+        }
         stopSelf()
     }
 
     private fun stopStreaming() {
         val run = activeRun
         if (run != null) {
+            setState(State.STOPPING)
             run.requestStop()
         } else {
             releaseLocks()
@@ -240,6 +306,7 @@ class MicSenderService : Service() {
                 stopForeground(STOP_FOREGROUND_REMOVE)
             } catch (_: Throwable) {
             }
+            setState(State.STOPPED)
             stopSelf()
         }
     }

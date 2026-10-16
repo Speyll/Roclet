@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background">#1C1B1F</color>
+    <color name="surface">#2A2A2E</color>
+    <color name="text_primary">#EAE7E4</color>
+    <color name="text_secondary">#B0ADAA</color>
+    <color name="icon_secondary">#B0ADAA</color>
+
+    <color name="mic_ready">#7C4DFF</color>
+    <color name="mic_streaming">#EF5350</color>
+    <color name="mic_transitional">#5A5A5E</color>
+
+    <color name="status_streaming">#81C784</color>
+    <color name="status_error">#FF8A80</color>
+</resources>
