@@ -38,11 +38,15 @@ class MicSenderService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val action = intent?.getStringExtra(EXTRA_ACTION)
         val ip = intent?.getStringExtra(EXTRA_DEST_IP) ?: ""
+        val sourcePort = intent?.getIntExtra(EXTRA_SOURCE_PORT, RocAudioSender.DEFAULT_SOURCE_PORT)
+            ?: RocAudioSender.DEFAULT_SOURCE_PORT
+        val repairPort = intent?.getIntExtra(EXTRA_REPAIR_PORT, RocAudioSender.DEFAULT_REPAIR_PORT)
+            ?: RocAudioSender.DEFAULT_REPAIR_PORT
 
         when (action) {
             ACTION_START -> {
                 if (!isRunning && ip.isNotEmpty()) {
-                    startStreaming(ip)
+                    startStreaming(ip, sourcePort, repairPort)
                 }
             }
             ACTION_STOP -> {
@@ -52,7 +56,7 @@ class MicSenderService : Service() {
         return START_NOT_STICKY
     }
 
-    private fun startStreaming(ip: String) {
+    private fun startStreaming(ip: String, sourcePort: Int, repairPort: Int) {
         try {
             acquireLocks()
             createNotificationChannel()
@@ -82,7 +86,7 @@ class MicSenderService : Service() {
             )
             audioRecord = record
 
-            val sender = RocAudioSender(destIp = ip, sourcePort = 10001, repairPort = 10002, sampleRate = sampleRate)
+            val sender = RocAudioSender(destIp = ip, sourcePort = sourcePort, repairPort = repairPort, sampleRate = sampleRate)
             sender.start()
             rocSender = sender
 
@@ -210,6 +214,8 @@ class MicSenderService : Service() {
     companion object {
         const val EXTRA_ACTION = "EXTRA_ACTION"
         const val EXTRA_DEST_IP = "EXTRA_DEST_IP"
+        const val EXTRA_SOURCE_PORT = "EXTRA_SOURCE_PORT"
+        const val EXTRA_REPAIR_PORT = "EXTRA_REPAIR_PORT"
         const val ACTION_START = "ACTION_START"
         const val ACTION_STOP = "ACTION_STOP"
         private const val NOTIFICATION_ID = 101

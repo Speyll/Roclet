@@ -30,6 +30,41 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
+        android:id="@+id/tvPortLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/network_ports"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/etIp"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <EditText
+        android:id="@+id/etSourcePort"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:hint="@string/source_port_hint"
+        android:inputType="number"
+        android:maxLines="1"
+        app:layout_constraintTop_toBottomOf="@id/tvPortLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/etRepairPort" />
+
+    <EditText
+        android:id="@+id/etRepairPort"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/repair_port_hint"
+        android:inputType="number"
+        android:maxLines="1"
+        app:layout_constraintTop_toTopOf="@id/etSourcePort"
+        app:layout_constraintStart_toEndOf="@id/etSourcePort"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
         android:id="@+id/tvStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -37,7 +72,7 @@
         android:text="@string/status_idle"
         android:textSize="16sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/etIp"
+        app:layout_constraintTop_toBottomOf="@id/etSourcePort"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button

@@ -2,6 +2,11 @@
     <string name="app_name">ROC Mic Sender</string>
     <string name="dest_ip">Linux Receiver IP</string>
     <string name="ip_hint">192.168.1.50</string>
+    <string name="network_ports">Network Ports (source / repair)</string>
+    <string name="source_port_hint">Source port</string>
+    <string name="repair_port_hint">Repair port</string>
+    <string name="error_invalid_port">Enter a port between 1 and 65535</string>
+    <string name="error_ports_must_differ">Source and repair ports must be different</string>
     <string name="status_idle">Status: Idle</string>
     <string name="status_streaming">Status: Streaming...</string>
     <string name="status_enter_ip">Please enter receiver IP</string>

@@ -12,8 +12,8 @@ import org.rocstreaming.roctoolkit.Slot
 
 class RocAudioSender(
     private val destIp: String,
-    private val sourcePort: Int = 10001,
-    private val repairPort: Int = 10002,
+    private val sourcePort: Int = DEFAULT_SOURCE_PORT,
+    private val repairPort: Int = DEFAULT_REPAIR_PORT,
     private val sampleRate: Int = 44100
 ) : AutoCloseable {
 
@@ -80,5 +80,10 @@ class RocAudioSender(
         } catch (_: Throwable) {
         }
         context = null
+    }
+
+    companion object {
+        const val DEFAULT_SOURCE_PORT = 10001
+        const val DEFAULT_REPAIR_PORT = 10002
     }
 }

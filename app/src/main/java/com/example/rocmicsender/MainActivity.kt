@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -39,9 +40,13 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.etIp.setText(
-            getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .getString(PREF_DEST_IP, "")
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        binding.etIp.setText(prefs.getString(PREF_DEST_IP, ""))
+        binding.etSourcePort.setText(
+            prefs.getString(PREF_SOURCE_PORT, RocAudioSender.DEFAULT_SOURCE_PORT.toString())
+        )
+        binding.etRepairPort.setText(
+            prefs.getString(PREF_REPAIR_PORT, RocAudioSender.DEFAULT_REPAIR_PORT.toString())
         )
 
         binding.btnStart.setOnClickListener { startStreaming() }
@@ -84,13 +89,27 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        binding.etSourcePort.error = null
+        binding.etRepairPort.error = null
+
+        val sourcePort = parsePort(binding.etSourcePort) ?: return
+        val repairPort = parsePort(binding.etRepairPort) ?: return
+        if (sourcePort == repairPort) {
+            binding.etRepairPort.error = getString(R.string.error_ports_must_differ)
+            return
+        }
+
         getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString(PREF_DEST_IP, ip)
+            .putString(PREF_SOURCE_PORT, sourcePort.toString())
+            .putString(PREF_REPAIR_PORT, repairPort.toString())
             .apply()
 
         val intent = Intent(this, MicSenderService::class.java).apply {
             putExtra(MicSenderService.EXTRA_DEST_IP, ip)
+            putExtra(MicSenderService.EXTRA_SOURCE_PORT, sourcePort)
+            putExtra(MicSenderService.EXTRA_REPAIR_PORT, repairPort)
             putExtra(MicSenderService.EXTRA_ACTION, MicSenderService.ACTION_START)
         }
 
@@ -113,9 +132,20 @@ class MainActivity : AppCompatActivity() {
         binding.btnStart.isEnabled = !running
         binding.btnStop.isEnabled = running
         binding.etIp.isEnabled = !running
+        binding.etSourcePort.isEnabled = !running
+        binding.etRepairPort.isEnabled = !running
         if (running) {
             binding.tvStatus.text = getString(R.string.status_streaming)
         }
+    }
+
+    private fun parsePort(field: EditText): Int? {
+        val port = field.text.toString().trim().toIntOrNull()
+        if (port == null || port !in 1..65535) {
+            field.error = getString(R.string.error_invalid_port)
+            return null
+        }
+        return port
     }
 
     override fun onRequestPermissionsResult(
@@ -141,5 +171,7 @@ class MainActivity : AppCompatActivity() {
         private const val PERM_REQUEST_CODE = 2001
         private const val PREFS_NAME = "roc_mic_prefs"
         private const val PREF_DEST_IP = "dest_ip"
+        private const val PREF_SOURCE_PORT = "source_port"
+        private const val PREF_REPAIR_PORT = "repair_port"
     }
 }
