@@ -1,11 +1,27 @@
-.aider*
+# Local development environment and machine-specific tooling
+/.dev/
+
 # Build artifacts and local properties
 .gradle/
 build/
 app/build/
+.kotlin/
 local.properties
+
+# Generated Android packages
 *.apk
 *.aab
+*.apks
+
+# Local signing material
+*.keystore
+*.jks
+*.p12
+*.pem
+*.key
+
+# Local editor/AI coding-tool history and caches
+.aider*
 
 # IDE & OS
 .idea/
