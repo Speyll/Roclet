@@ -1,0 +1,13 @@
+.aider*
+# Build artifacts and local properties
+.gradle/
+build/
+app/build/
+local.properties
+*.apk
+*.aab
+
+# IDE & OS
+.idea/
+*.iml
+.DS_Store

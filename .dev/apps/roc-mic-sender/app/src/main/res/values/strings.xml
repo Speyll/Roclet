@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">ROC Mic Sender</string>
+    <string name="dest_ip">Destination IP</string>
+    <string name="ip_hint">e.g. 192.168.1.50</string>
+    <string name="status_idle">Status: Idle</string>
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
+    <string name="notification_title">ROC Microphone Sender</string>
+    <string name="notification_text">Streaming microphone audio</string>
+    <string name="notification_stop">Stop</string>
+</resources>

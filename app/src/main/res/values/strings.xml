@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">ROC Mic Sender</string>
+    <string name="dest_ip">Linux Receiver IP</string>
+    <string name="ip_hint">192.168.1.50</string>
+    <string name="status_idle">Status: Idle</string>
+    <string name="status_streaming">Status: Streaming...</string>
+    <string name="status_enter_ip">Please enter receiver IP</string>
+    <string name="status_mic_permission_required">Microphone permission required</string>
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
+    <string name="notification_channel_name">ROC Audio Stream</string>
+    <string name="notification_title">ROC Microphone Sender</string>
+    <string name="notification_text">Streaming microphone audio to Linux PC</string>
+</resources>
