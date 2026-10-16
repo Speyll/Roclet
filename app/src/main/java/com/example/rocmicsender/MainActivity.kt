@@ -39,6 +39,11 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.etIp.setText(
+            getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getString(PREF_DEST_IP, "")
+        )
+
         binding.btnStart.setOnClickListener { startStreaming() }
         binding.btnStop.setOnClickListener { stopStreaming() }
 
@@ -78,6 +83,11 @@ class MainActivity : AppCompatActivity() {
             binding.tvStatus.text = getString(R.string.status_enter_ip)
             return
         }
+
+        getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(PREF_DEST_IP, ip)
+            .apply()
 
         val intent = Intent(this, MicSenderService::class.java).apply {
             putExtra(MicSenderService.EXTRA_DEST_IP, ip)
@@ -129,5 +139,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val PERM_REQUEST_CODE = 2001
+        private const val PREFS_NAME = "roc_mic_prefs"
+        private const val PREF_DEST_IP = "dest_ip"
     }
 }
