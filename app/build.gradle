@@ -2,6 +2,36 @@ plugins {
     id 'com.android.application'
 }
 
+def rocletSigningPropertiesPath = System.getenv('ROCLET_SIGNING_PROPERTIES') ?: "${System.getProperty('user.home')}/.local/share/roclet/signing/release-signing.properties"
+def rocletSigningPropertiesFile = file(rocletSigningPropertiesPath)
+def rocletRequiredSigningFields = ['storeFile', 'storeType', 'storePassword', 'keyAlias', 'keyPassword']
+def rocletReleaseSigningProperties = new Properties()
+def rocletReleaseSigningLoaded = false
+def rocletReleaseSigningReadError = false
+if (rocletSigningPropertiesFile.isFile()) {
+    try {
+        rocletSigningPropertiesFile.withInputStream { rocletReleaseSigningProperties.load(it) }
+        rocletReleaseSigningLoaded = true
+    } catch (Exception ignored) {
+        rocletReleaseSigningReadError = true
+    }
+}
+def rocletReleaseSigningMissingFields = rocletReleaseSigningLoaded
+    ? rocletRequiredSigningFields.findAll { !rocletReleaseSigningProperties.getProperty(it)?.trim() }
+    : rocletRequiredSigningFields
+def rocletResolveStoreFile = { String value ->
+    def store = new File(value)
+    return store.isAbsolute() ? store : new File(rocletSigningPropertiesFile.parentFile, value)
+}
+def rocletReleaseStoreFile = null
+if (rocletReleaseSigningLoaded && rocletReleaseSigningMissingFields.isEmpty()) {
+    def resolvedStoreFile = rocletResolveStoreFile(rocletReleaseSigningProperties.getProperty('storeFile').trim())
+    if (resolvedStoreFile.isFile()) {
+        rocletReleaseStoreFile = resolvedStoreFile
+    }
+}
+def rocletReleaseSigningReady = rocletReleaseStoreFile != null
+
 android {
     namespace 'com.example.rocmicsender'
     compileSdk 36
@@ -14,12 +44,24 @@ android {
         versionName '1.0'
     }
 
+    signingConfigs {
+        release {
+            if (rocletReleaseSigningReady) {
+                storeFile rocletReleaseStoreFile
+                storeType rocletReleaseSigningProperties.getProperty('storeType')
+                storePassword rocletReleaseSigningProperties.getProperty('storePassword')
+                keyAlias rocletReleaseSigningProperties.getProperty('keyAlias')
+                keyPassword rocletReleaseSigningProperties.getProperty('keyPassword')
+            }
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             ndk {
                 abiFilters 'arm64-v8a'
             }
@@ -34,6 +76,34 @@ android {
     buildFeatures {
         viewBinding true
     }
+}
+
+def validateReleaseSigning = tasks.register('validateReleaseSigning') {
+    doLast {
+        if (!rocletSigningPropertiesFile.isFile()) {
+            throw new GradleException(
+                "ROClet release signing properties not found at ${rocletSigningPropertiesFile}. " +
+                "Set ROCLET_SIGNING_PROPERTIES or create that file to build a release.")
+        }
+        if (rocletReleaseSigningReadError) {
+            throw new GradleException(
+                "ROClet release signing properties could not be read at ${rocletSigningPropertiesFile}.")
+        }
+        if (!rocletReleaseSigningMissingFields.isEmpty()) {
+            throw new GradleException(
+                "ROClet release signing properties are missing required fields: ${rocletReleaseSigningMissingFields.join(', ')} " +
+                "(in ${rocletSigningPropertiesFile}).")
+        }
+        if (!rocletReleaseSigningReady) {
+            throw new GradleException(
+                "ROClet release keystore not found at ${rocletResolveStoreFile(rocletReleaseSigningProperties.getProperty('storeFile'))} " +
+                "(referenced by ${rocletSigningPropertiesFile}).")
+        }
+    }
+}
+
+tasks.matching { it.name == 'validateSigningRelease' }.configureEach {
+    dependsOn validateReleaseSigning
 }
 
 dependencies {
