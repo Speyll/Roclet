@@ -17,20 +17,66 @@ import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import androidx.core.app.NotificationCompat
+import java.util.concurrent.atomic.AtomicBoolean
 
 class MicSenderService : Service() {
 
     private val binder = LocalBinder()
-    private var isRunning = false
-    private var audioThread: Thread? = null
-    private var audioRecord: AudioRecord? = null
-    private var rocSender: RocAudioSender? = null
+
+    @Volatile
+    private var activeRun: StreamingRun? = null
+
     private var wakeLock: PowerManager.WakeLock? = null
     private var wifiLock: WifiManager.WifiLock? = null
 
     inner class LocalBinder : Binder() {
         val isRunning: Boolean
-            get() = this@MicSenderService.isRunning
+            get() = activeRun != null
+    }
+
+    /**
+     * Owns the resources of a single streaming run. The audio worker is the only
+     * component allowed to release the recorder or close the ROC sender, and it does
+     * so in its own `finally` path after the recording loop has exited.
+     */
+    private class StreamingRun(
+        val record: AudioRecord,
+        val sender: RocAudioSender,
+        val bufferSamples: Int
+    ) {
+        @Volatile
+        var cancelled = false
+            private set
+
+        var thread: Thread? = null
+
+        private val released = AtomicBoolean(false)
+
+        /** Signals this run to stop and unblocks a blocking [AudioRecord.read]. */
+        fun requestStop() {
+            cancelled = true
+            try {
+                record.stop()
+            } catch (_: Throwable) {
+            }
+        }
+
+        /** Releases native resources. Safe to call more than once; only the first call acts. */
+        fun releaseResources() {
+            if (!released.compareAndSet(false, true)) return
+            try {
+                record.stop()
+            } catch (_: Throwable) {
+            }
+            try {
+                record.release()
+            } catch (_: Throwable) {
+            }
+            try {
+                sender.close()
+            } catch (_: Throwable) {
+            }
+        }
     }
 
     override fun onBind(intent: Intent): IBinder = binder
@@ -45,7 +91,7 @@ class MicSenderService : Service() {
 
         when (action) {
             ACTION_START -> {
-                if (!isRunning && ip.isNotEmpty()) {
+                if (activeRun == null && ip.isNotEmpty()) {
                     startStreaming(ip, sourcePort, repairPort)
                 }
             }
@@ -57,6 +103,11 @@ class MicSenderService : Service() {
     }
 
     private fun startStreaming(ip: String, sourcePort: Int, repairPort: Int) {
+        if (activeRun != null) return
+
+        var record: AudioRecord? = null
+        var sender: RocAudioSender? = null
+        var run: StreamingRun? = null
         try {
             acquireLocks()
             createNotificationChannel()
@@ -77,69 +128,100 @@ class MicSenderService : Service() {
             val audioFormat = AudioFormat.ENCODING_PCM_16BIT
             val minBufSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat).coerceAtLeast(2048)
 
-            val record = AudioRecord(
+            val createdRecord = AudioRecord(
                 MediaRecorder.AudioSource.MIC,
                 sampleRate,
                 channelConfig,
                 audioFormat,
                 minBufSize * 2
             )
-            audioRecord = record
+            record = createdRecord
 
-            val sender = RocAudioSender(destIp = ip, sourcePort = sourcePort, repairPort = repairPort, sampleRate = sampleRate)
-            sender.start()
-            rocSender = sender
+            val createdSender = RocAudioSender(destIp = ip, sourcePort = sourcePort, repairPort = repairPort, sampleRate = sampleRate)
+            sender = createdSender
+            createdSender.start()
 
-            record.startRecording()
-            isRunning = true
+            createdRecord.startRecording()
 
-            audioThread = Thread {
-                val shortBuf = ShortArray(minBufSize)
-                while (isRunning) {
-                    val readSamples = record.read(shortBuf, 0, shortBuf.size)
-                    if (readSamples > 0) {
-                        val stereoFloats = FloatArray(readSamples * 2)
-                        for (i in 0 until readSamples) {
-                            val f = shortBuf[i] / 32768.0f
-                            stereoFloats[i * 2] = f
-                            stereoFloats[i * 2 + 1] = f
-                        }
-                        sender.sendFloats(stereoFloats)
-                    }
-                }
-            }.apply {
+            val startedRun = StreamingRun(createdRecord, createdSender, minBufSize)
+            run = startedRun
+            startedRun.thread = Thread { runWorker(startedRun) }.apply {
                 name = "MicSenderAudioThread"
                 priority = Thread.MAX_PRIORITY
-                start()
             }
-        } catch (e: Exception) {
-            stopStreaming()
+
+            activeRun = startedRun
+            startedRun.thread?.start()
+        } catch (t: Throwable) {
+            val partiallyStartedRun = run
+            if (partiallyStartedRun != null) {
+                activeRun = null
+                partiallyStartedRun.releaseResources()
+            } else {
+                try {
+                    record?.release()
+                } catch (_: Throwable) {
+                }
+                try {
+                    sender?.close()
+                } catch (_: Throwable) {
+                }
+            }
+            releaseLocks()
+            try {
+                stopForeground(STOP_FOREGROUND_REMOVE)
+            } catch (_: Throwable) {
+            }
+            stopSelf()
         }
     }
 
-    private fun stopStreaming() {
-        isRunning = false
-
-        audioThread?.interrupt()
-        audioThread = null
-
+    private fun runWorker(run: StreamingRun) {
+        val record = run.record
+        val sender = run.sender
         try {
-            audioRecord?.stop()
-            audioRecord?.release()
-        } catch (_: Throwable) {
+            val shortBuf = ShortArray(run.bufferSamples)
+            while (!run.cancelled) {
+                val readSamples = record.read(shortBuf, 0, shortBuf.size)
+                if (readSamples > 0) {
+                    val stereoFloats = FloatArray(readSamples * 2)
+                    for (i in 0 until readSamples) {
+                        val f = shortBuf[i] / 32768.0f
+                        stereoFloats[i * 2] = f
+                        stereoFloats[i * 2 + 1] = f
+                    }
+                    sender.sendFloats(stereoFloats)
+                }
+            }
+        } finally {
+            run.releaseResources()
+            mainExecutor.execute { finishRun(run) }
         }
-        audioRecord = null
+    }
 
-        try {
-            rocSender?.close()
-        } catch (_: Throwable) {
-        }
-        rocSender = null
-
+    private fun finishRun(run: StreamingRun) {
+        if (activeRun !== run) return
+        activeRun = null
         releaseLocks()
-
-        stopForeground(STOP_FOREGROUND_REMOVE)
+        try {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+        } catch (_: Throwable) {
+        }
         stopSelf()
+    }
+
+    private fun stopStreaming() {
+        val run = activeRun
+        if (run != null) {
+            run.requestStop()
+        } else {
+            releaseLocks()
+            try {
+                stopForeground(STOP_FOREGROUND_REMOVE)
+            } catch (_: Throwable) {
+            }
+            stopSelf()
+        }
     }
 
     private fun acquireLocks() {
