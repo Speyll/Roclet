@@ -1,0 +1,120 @@
+diff --git a/3rdparty/SConscript b/3rdparty/SConscript
+index fb7974b..29e3869 100644
+--- a/3rdparty/SConscript
++++ b/3rdparty/SConscript
+@@ -182,11 +182,6 @@ elif 'openfec' in system_dependencies:
+     if not conf.CheckDeclaration('OF_USE_DECODER', '#include <of_openfec_api.h>', 'c'):
+         env.Die("openfec has no decoder support (OF_USE_DECODER)")
+ 
+-    if not conf.CheckDeclaration('OF_USE_LDPC_STAIRCASE_CODEC',
+-                                 '#include <of_openfec_api.h>', 'c'):
+-        env.Die(
+-            "openfec has no LDPC-Staircase codec support (OF_USE_LDPC_STAIRCASE_CODEC)")
+-
+     env = conf.Finish()
+ 
+ # dep: openssl
+diff --git a/src/internal_modules/roc_fec/codec_map.cpp b/src/internal_modules/roc_fec/codec_map.cpp
+index 1e2ca73..e76cefb 100644
+--- a/src/internal_modules/roc_fec/codec_map.cpp
++++ b/src/internal_modules/roc_fec/codec_map.cpp
+@@ -47,9 +47,6 @@ CodecMap::CodecMap()
+ 
+         codec.scheme = packet::FEC_ReedSolomon_M8;
+         add_codec_(codec);
+-
+-        codec.scheme = packet::FEC_LDPC_Staircase;
+-        add_codec_(codec);
+     }
+ #endif // ROC_TARGET_OPENFEC
+ }
+diff --git a/src/internal_modules/roc_fec/target_openfec/roc_fec/openfec_decoder.cpp b/src/internal_modules/roc_fec/target_openfec/roc_fec/openfec_decoder.cpp
+index d752461..9fe1b99 100644
+--- a/src/internal_modules/roc_fec/target_openfec/roc_fec/openfec_decoder.cpp
++++ b/src/internal_modules/roc_fec/target_openfec/roc_fec/openfec_decoder.cpp
+@@ -46,17 +46,6 @@ OpenfecDecoder::OpenfecDecoder(const CodecConfig& config,
+         of_sess_params_ = (of_parameters_t*)&codec_params_.rs_params_;
+ 
+         max_block_length_ = OF_REED_SOLOMON_MAX_NB_ENCODING_SYMBOLS_DEFAULT;
+-    } else if (config.scheme == packet::FEC_LDPC_Staircase) {
+-        roc_log(LogDebug, "openfec decoder: initializing: codec=ldpc prng_seed=%ld n1=%d",
+-                (long)config.ldpc_prng_seed, (int)config.ldpc_N1);
+-
+-        codec_id_ = OF_CODEC_LDPC_STAIRCASE_STABLE;
+-        codec_params_.ldpc_params_.prng_seed = config.ldpc_prng_seed;
+-        codec_params_.ldpc_params_.N1 = config.ldpc_N1;
+-
+-        of_sess_params_ = (of_parameters_t*)&codec_params_.ldpc_params_;
+-
+-        max_block_length_ = OF_LDPC_STAIRCASE_MAX_NB_ENCODING_SYMBOLS_DEFAULT;
+     } else {
+         roc_panic("openfec decoder: unexpected fec scheme");
+     }
+diff --git a/src/internal_modules/roc_fec/target_openfec/roc_fec/openfec_decoder.h b/src/internal_modules/roc_fec/target_openfec/roc_fec/openfec_decoder.h
+index 9e2df9b..8f7a266 100644
+--- a/src/internal_modules/roc_fec/target_openfec/roc_fec/openfec_decoder.h
++++ b/src/internal_modules/roc_fec/target_openfec/roc_fec/openfec_decoder.h
+@@ -29,10 +29,6 @@ extern "C" {
+ #error "OF_USE_DECODER undefined"
+ #endif
+ 
+-#ifndef OF_USE_LDPC_STAIRCASE_CODEC
+-#error "OF_USE_LDPC_STAIRCASE_CODEC undefined"
+-#endif
+-
+ namespace roc {
+ namespace fec {
+ 
+@@ -103,7 +99,6 @@ private:
+     of_codec_id_t codec_id_;
+     union {
+         of_rs_2_m_parameters_t rs_params_;
+-        of_ldpc_parameters ldpc_params_;
+     } codec_params_;
+ 
+     // session is recreated for every new block
+diff --git a/src/internal_modules/roc_fec/target_openfec/roc_fec/openfec_encoder.cpp b/src/internal_modules/roc_fec/target_openfec/roc_fec/openfec_encoder.cpp
+index 5c5f97a..a28eb0a 100644
+--- a/src/internal_modules/roc_fec/target_openfec/roc_fec/openfec_encoder.cpp
++++ b/src/internal_modules/roc_fec/target_openfec/roc_fec/openfec_encoder.cpp
+@@ -33,17 +33,6 @@ OpenfecEncoder::OpenfecEncoder(const CodecConfig& config,
+         of_sess_params_ = (of_parameters_t*)&codec_params_.rs_params_;
+ 
+         max_block_length_ = OF_REED_SOLOMON_MAX_NB_ENCODING_SYMBOLS_DEFAULT;
+-    } else if (config.scheme == packet::FEC_LDPC_Staircase) {
+-        roc_log(LogDebug, "openfec encoder: initializing: codec=ldpc prng_seed=%ld n1=%d",
+-                (long)config.ldpc_prng_seed, (int)config.ldpc_N1);
+-
+-        codec_id_ = OF_CODEC_LDPC_STAIRCASE_STABLE;
+-        codec_params_.ldpc_params_.prng_seed = config.ldpc_prng_seed;
+-        codec_params_.ldpc_params_.N1 = config.ldpc_N1;
+-
+-        of_sess_params_ = (of_parameters_t*)&codec_params_.ldpc_params_;
+-
+-        max_block_length_ = OF_LDPC_STAIRCASE_MAX_NB_ENCODING_SYMBOLS_DEFAULT;
+     } else {
+         roc_panic("openfec encoder: unexpected fec scheme");
+     }
+diff --git a/src/internal_modules/roc_fec/target_openfec/roc_fec/openfec_encoder.h b/src/internal_modules/roc_fec/target_openfec/roc_fec/openfec_encoder.h
+index 938bae0..8266297 100644
+--- a/src/internal_modules/roc_fec/target_openfec/roc_fec/openfec_encoder.h
++++ b/src/internal_modules/roc_fec/target_openfec/roc_fec/openfec_encoder.h
+@@ -29,10 +29,6 @@ extern "C" {
+ #error "OF_USE_ENCODER undefined"
+ #endif
+ 
+-#ifndef OF_USE_LDPC_STAIRCASE_CODEC
+-#error "OF_USE_LDPC_STAIRCASE_CODEC undefined"
+-#endif
+-
+ namespace roc {
+ namespace fec {
+ 
+@@ -92,7 +88,6 @@ private:
+ 
+     of_codec_id_t codec_id_;
+     union {
+-        of_ldpc_parameters ldpc_params_;
+         of_rs_2_m_parameters_t rs_params_;
+     } codec_params_;
+ 

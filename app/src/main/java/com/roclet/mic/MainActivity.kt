@@ -1,4 +1,4 @@
-package com.example.rocmicsender
+package com.roclet.mic
 
 import android.Manifest
 import android.content.ComponentName
@@ -21,7 +21,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.example.rocmicsender.databinding.ActivityMainBinding
+import com.roclet.mic.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 

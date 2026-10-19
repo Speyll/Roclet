@@ -1,20 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#6200EE</color>
-    <color name="colorPrimaryDark">#3700B3</color>
-    <color name="colorAccent">#03DAC5</color>
+    <!-- Roclet brand palette, derived from the launcher icon (muted teal + pale mint) -->
+    <color name="brand_teal">#477F79</color>
+    <color name="brand_teal_dark">#35625D</color>
+    <color name="brand_mint">#B9D8CA</color>
 
+    <!-- Theme accents -->
+    <color name="colorPrimary">@color/brand_teal</color>
+    <color name="colorPrimaryDark">@color/brand_teal_dark</color>
+    <color name="colorAccent">@color/brand_teal</color>
+
+    <!-- Backgrounds and text -->
     <color name="background">#F4F2F0</color>
     <color name="surface">#E9E6E3</color>
     <color name="text_primary">#1C1B1F</color>
     <color name="text_secondary">#6B6B6B</color>
     <color name="icon_secondary">#5F5F63</color>
 
-    <color name="mic_ready">#6200EE</color>
+    <!-- Selection / ripple highlight (pale mint) -->
+    <color name="control_highlight">#5AB9D8CA</color>
+
+    <!-- Microphone control states -->
+    <color name="mic_ready">@color/brand_teal</color>
     <color name="mic_streaming">#D32F2F</color>
     <color name="mic_transitional">#8A8A8A</color>
     <color name="mic_ripple">#40FFFFFF</color>
 
+    <!-- Status semantics -->
     <color name="status_streaming">#2E7D32</color>
     <color name="status_error">#B3261E</color>
 </resources>

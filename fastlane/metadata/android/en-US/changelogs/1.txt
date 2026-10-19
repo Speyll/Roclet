@@ -1,0 +1,6 @@
+Initial release.
+
+- Stream the Android microphone to a ROC receiver over Wi-Fi using Roc's rtp+rs8m and rs8m profiles.
+- Configurable destination IP address and source/repair ports.
+- Foreground service so streaming continues with the screen off.
+- Light and dark themes.

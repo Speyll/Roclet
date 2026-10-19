@@ -33,15 +33,15 @@ if (rocletReleaseSigningLoaded && rocletReleaseSigningMissingFields.isEmpty()) {
 def rocletReleaseSigningReady = rocletReleaseStoreFile != null
 
 android {
-    namespace 'com.example.rocmicsender'
+    namespace 'com.roclet.mic'
     compileSdk 36
 
     defaultConfig {
-        applicationId 'com.example.rocmicsender'
+        applicationId 'com.roclet.mic'
         minSdk 29
         targetSdk 36
         versionCode 1
-        versionName '1.0'
+        versionName '0.1.0'
     }
 
     signingConfigs {
@@ -61,7 +61,9 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
+            if (rocletSigningPropertiesFile.isFile()) {
+                signingConfig signingConfigs.release
+            }
             ndk {
                 abiFilters 'arm64-v8a'
             }
@@ -107,7 +109,7 @@ tasks.matching { it.name == 'validateSigningRelease' }.configureEach {
 }
 
 dependencies {
-    implementation 'org.roc-streaming.roctoolkit:roc-android:0.2.1'
+    implementation project(':roc-android')
     implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
 }

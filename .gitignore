@@ -1,11 +1,20 @@
 # Local development environment and machine-specific tooling
 /.dev/
 
+# Native dependency build: generated sources/artifacts + local toolchain overrides
+# (generate with scripts/native/build-native.sh; pinned inputs are committed)
+/scripts/native/src/
+/scripts/native/out/
+/scripts/native/logs/
+/scripts/native/local.env
+
 # Build artifacts and local properties
 .gradle/
 build/
 app/build/
 .kotlin/
+.cxx/
+.externalNativeBuild/
 local.properties
 
 # Generated Android packages
@@ -13,12 +22,28 @@ local.properties
 *.aab
 *.apks
 
-# Local signing material
+# Local signing material and secrets (never commit)
 *.keystore
 *.jks
 *.p12
 *.pem
 *.key
+secrets.properties
+signing.properties
+release-signing.properties
+
+# Logs, heap dumps, and patch/merge leftovers
+*.log
+*.hprof
+*.orig
+*.rej
+
+# Instrumentation output
+captures/
+
+# Fastlane transient output (published Fastlane metadata should be committed)
+fastlane/report.xml
+fastlane/Preview.html
 
 # Local editor/AI coding-tool history and caches
 .aider*

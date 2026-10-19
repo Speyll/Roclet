@@ -1,0 +1,15 @@
+Roclet turns your Android phone into a wireless microphone for a Roc Toolkit receiver.
+
+It captures the phone's microphone and streams it over your local Wi-Fi network using Roc's reliable, low-latency audio transport. A machine on the same network running a ROC receiver - for example the PipeWire or PulseAudio ROC module, or the roc-recv command-line tool - receives it as a normal audio source.
+
+Features:
+* Stream the Android microphone to a ROC receiver over Wi-Fi.
+* Forward erasure correction (RS8M) with a separate repair stream for resilience on lossy Wi-Fi.
+* Configurable destination IP address and source/repair ports, remembered between launches.
+* Runs as a foreground service, so streaming continues with the screen off.
+* Start and stop from the app or from the ongoing notification.
+* Light and dark themes.
+
+Roclet sends audio using Roc's standard rtp+rs8m (source) and rs8m (repair) profiles. The receiver must be reachable on the same network and listening on the configured ports (default source 10001, repair 10002).
+
+Audio is transmitted only to the destination you configure. The app contains no analytics, advertising, or telemetry, and stores only your destination IP and port settings locally on the device.

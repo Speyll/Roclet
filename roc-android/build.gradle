@@ -1,0 +1,35 @@
+plugins {
+    id 'com.android.library'
+}
+
+// Local, source-built replacement for the upstream `org.roc-streaming:roc-android`
+// AAR. The Java sources come from the pinned roc-java VCS tree and the native
+// libraries from scripts/native/build-native.sh. Both live under
+// scripts/native/ (gitignored, generated) -- see scripts/native/README.md.
+android {
+    namespace 'org.rocstreaming.roctoolkit'
+    compileSdk 36
+
+    defaultConfig {
+        minSdk 26
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    sourceSets {
+        main {
+            java.srcDirs += ["$rootDir/scripts/native/src/roc-java/src/main/java"]
+            jniLibs.srcDirs += ["$rootDir/scripts/native/out/jniLibs"]
+        }
+    }
+}
+
+dependencies {
+    // roc-java's Java API uses Lombok annotations (upstream builds with the
+    // Lombok annotation processor).
+    compileOnly 'org.projectlombok:lombok:1.18.34'
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
+}

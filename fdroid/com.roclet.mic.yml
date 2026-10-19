@@ -1,0 +1,93 @@
+# Candidate F-Droid build recipe for Roclet (com.roclet.mic).
+#
+# This file is a draft that belongs in the fdroiddata repository
+# (metadata/com.roclet.mic.yml) when submitting an inclusion request. It is kept
+# here as a reference and is NOT active. The public repository URL is confirmed;
+# only the release commit/tag for the 0.1.0 release remains to be filled in, then
+# copy it into fdroiddata via a merge request.
+
+Categories:
+  - Multimedia
+  - Audio
+License: Apache-2.0
+AuthorName: Speyll
+SourceCode: https://github.com/Speyll/Roclet
+IssueTracker: https://github.com/Speyll/Roclet/issues
+Changelog: https://github.com/Speyll/Roclet/blob/HEAD/CHANGELOG.md
+
+AutoName: Roclet
+Summary: Wireless microphone for a Roc Toolkit receiver
+Description: |-
+  Roclet turns an Android phone into a wireless microphone for a Roc Toolkit
+  receiver. It captures the phone's microphone and streams it over the local
+  Wi-Fi network using Roc's reliable, low-latency audio transport, so a machine
+  running a ROC receiver (for example the PipeWire ROC module or roc-recv) can
+  receive it as an audio source.
+
+  Audio is sent using Roc's standard rtp+rs8m (source) and rs8m (repair)
+  profiles. The destination IP address and ports are configurable and remembered
+  between launches. Streaming runs in a foreground service so it continues with
+  the screen off.
+
+  The app contains no analytics, advertising, or telemetry and stores only the
+  destination IP and port settings locally on the device.
+
+RepoType: git
+Repo: https://github.com/Speyll/Roclet
+
+Builds:
+  - versionName: '0.1.0'
+    versionCode: 1
+    commit: <TODO: 'v0.1.0' tag or the release commit hash — set after the first release commit is created>
+    # The Gradle project root is the repository root (settings.gradle includes
+    # ':app' and ':roc-android'); do NOT set subdir.
+    gradle:
+      - yes
+    # F-Droid builds the release unsigned and signs it afterwards, so the output
+    # is the 'unsigned' APK. app/build.gradle only attaches a signing config when
+    # a signing-properties file is present, so this is the expected name here.
+    output: app/build/outputs/apk/release/app-release-unsigned.apk
+    ndk: 21.1.6352462
+    # Build-time toolchain for the native dependency. The Debian buildserver
+    # base does not preinstall these; install them per-build. See MaintainerNotes.
+    sudo:
+      - apt-get update || apt-get update
+      - apt-get install -y build-essential cmake ninja-build scons ragel
+    # The native dependency (libroc.so / libroc_jni.so / libc++_shared.so) and
+    # the roc-java Java sources are produced from pinned sources + patches by
+    # scripts/native/build-native.sh, entirely offline (committed source archives
+    # + patches under scripts/native/). This must run in 'build', not 'prebuild':
+    # F-Droid scans the source tree between them and does not allow binaries to
+    # be produced during 'prebuild'.
+    build:
+      - scripts/native/build-native.sh all
+    # The vendored upstream source archives are plain source tarballs; hide them
+    # from the binary scanner (they are not prebuilt binaries).
+    scanignore:
+      - scripts/native/vendor
+
+MaintainerNotes: |-
+  Native dependency: roc-android is built from source, not the upstream prebuilt
+  AAR. scripts/native/build-native.sh consumes committed pinned sources under
+  scripts/native/vendor/ + patches under scripts/native/patches/, verifies every
+  hash, and stages jniLibs + headers for the ':roc-android' Gradle module. It
+  needs: scons (4.x), ragel 6.10, GNU make/build-essential, cmake + ninja, and
+  the NDK declared above. On the buildserver these are installed via the 'sudo'
+  step above; confirm that the production buildserver's apt cache can provide
+  them offline (this is the main untested assumption -- see
+  .dev/review/stage-2d-release-preparation-blockers.md).
+
+  OpenFEC licensing is UNRESOLVED (CeCILL-C): the patched OpenFEC source is built
+  into libroc.so. Do not submit until a qualified licensing review clears this.
+
+  Release signing: app/build.gradle attaches the release signing config only when
+  a signing-properties file is present, so an unsigned release builds and
+  produces app-release-unsigned.apk for F-Droid to sign. Maintainers with a
+  signing-properties file still get strict validation.
+
+  AGP 9.4.0 / Gradle 9.7.0 / compileSdk 36: the buildserver base image ships
+  build-tools/platforms only up to API 33, so the SDK components for API 36 must
+  be installable. Confirm F-Droid can satisfy this before submission.
+
+AutoUpdateMode: None
+UpdateCheckMode: Tags

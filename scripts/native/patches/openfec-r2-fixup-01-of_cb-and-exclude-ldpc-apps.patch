@@ -1,0 +1,27 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 1262fe1..f895a2f 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -60,7 +60,7 @@ link_directories(${LIBRARY_OUTPUT_PATH})
+ 
+ add_subdirectory(pc)
+ add_subdirectory(src)
+-add_subdirectory(applis/eperftool)
+-add_subdirectory(applis/howto_examples/simple_client_server)
++add_subdirectory(applis/eperftool EXCLUDE_FROM_ALL)
++add_subdirectory(applis/howto_examples/simple_client_server EXCLUDE_FROM_ALL)
+ add_subdirectory(tools/descr_stats_v1.2)
+-add_subdirectory(tests)
++add_subdirectory(tests EXCLUDE_FROM_ALL)
+diff --git a/src/lib_common/of_openfec_api.c b/src/lib_common/of_openfec_api.c
+index 03be5e2..fdfa393 100644
+--- a/src/lib_common/of_openfec_api.c
++++ b/src/lib_common/of_openfec_api.c
+@@ -31,6 +31,7 @@
+  * knowledge of the CeCILL-C license and that you accept its terms.
+  */
+ #include "of_openfec_api.h"
++#include "of_cb.h"
+ 
+ #ifdef OF_USE_REED_SOLOMON_CODEC
+ #include "../lib_stable/reed-solomon_gf_2_8/of_reed-solomon_gf_2_8_includes.h"

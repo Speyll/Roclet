@@ -12,5 +12,6 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "roc-mic"
+rootProject.name = "Roclet"
 include ':app'
+include ':roc-android'

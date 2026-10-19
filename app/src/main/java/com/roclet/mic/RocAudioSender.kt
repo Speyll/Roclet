@@ -1,4 +1,4 @@
-package com.example.rocmicsender
+package com.roclet.mic
 
 import org.rocstreaming.roctoolkit.ChannelSet
 import org.rocstreaming.roctoolkit.Endpoint

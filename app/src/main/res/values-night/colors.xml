@@ -1,15 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Roclet brand palette, lightened for dark surfaces -->
+    <color name="brand_teal">#5E938A</color>
+    <color name="brand_teal_dark">#3F6F68</color>
+    <color name="brand_mint">#C9E3D6</color>
+
+    <!-- Backgrounds and text -->
     <color name="background">#1C1B1F</color>
     <color name="surface">#2A2A2E</color>
     <color name="text_primary">#EAE7E4</color>
     <color name="text_secondary">#B0ADAA</color>
     <color name="icon_secondary">#B0ADAA</color>
 
-    <color name="mic_ready">#7C4DFF</color>
+    <!-- Selection / ripple highlight (pale mint) -->
+    <color name="control_highlight">#40B9D8CA</color>
+
+    <!-- Microphone control states -->
+    <color name="mic_ready">@color/brand_teal</color>
     <color name="mic_streaming">#EF5350</color>
     <color name="mic_transitional">#5A5A5E</color>
 
+    <!-- Status semantics -->
     <color name="status_streaming">#81C784</color>
     <color name="status_error">#FF8A80</color>
 </resources>
