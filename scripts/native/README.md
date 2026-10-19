@@ -1,75 +1,127 @@
-# Native dependency build (`scripts/native/`)
+# Native dependency build
 
-Builds the arm64-v8a Roc Toolkit native dependency and the roc-java JNI bridge
-that the app consumes through the local `:roc-android` Gradle module, entirely
-from pinned sources and patches.
+## Purpose
 
-This replaces the previous flow that depended on a prebuilt AAR under `.dev/`.
+`scripts/native/build-native.sh` builds the arm64-v8a native dependency that the
+`:roc-android` Gradle module packages for the app, entirely offline from pinned
+source archives and patches. It produces:
 
-## What it produces (all gitignored)
+- `libroc.so` — Roc Toolkit built with the patched OpenFEC, libuv, and SpeexDSP.
+- `libroc_jni.so` — the roc-java JNI bridge, built against the staged `libroc.so`.
+- `libc++_shared.so` — the NDK C++ runtime.
 
-```
-scripts/native/
-  src/    extracted + patched sources (roc-toolkit, openfec, roc-java)
-  out/
-    jniLibs/arm64-v8a/libroc.so
-    jniLibs/arm64-v8a/libroc_jni.so
-    jniLibs/arm64-v8a/libc++_shared.so
-    include/roc/*.h
-  logs/   scons / cmake logs
-```
+The `:roc-android` module compiles the roc-java Java API from the extracted
+roc-java tree and packages these libraries. No prebuilt binaries are committed or
+downloaded.
 
-The `:roc-android` module compiles the roc-java Java API from
-`scripts/native/src/roc-java/src/main/java` and packages the libraries from
-`scripts/native/out/jniLibs`.
+## Pinned dependencies and patches
 
-## Committed inputs (pinned, hash-verified)
+All revisions and archive/patch hashes live in `pins.env`; the build verifies
+every input against them before use.
 
-| path | what |
-|---|---|
-| `pins.env` | every revision/hash pin |
-| `vendor/` | upstream **source** archives (roc-toolkit, OpenFEC pristine, roc-java, libuv, speexdsp) |
-| `patches/` | the R2 patches (Patch B; Patch A + fixup) |
+Upstream source archives committed under `vendor/`:
 
-No prebuilt binaries are committed or downloaded: everything is compiled from
-the pinned source archives above.
+| Archive | Source | Revision | License |
+|---|---|---|---|
+| `roc-toolkit_13da01d5.tar.gz` | roc-toolkit | `13da01d5a82b5c61e34aaa11865134d7371810f4` | MPL-2.0 |
+| `openfec-pristine_v1.4.2.7.tar.gz` | OpenFEC | `v1.4.2.7` (`9e83faa4e3b02fb9f8565ad809fa555b68d3b770`) | CeCILL-C |
+| `roc-java_v0.2.1.tar.gz` | roc-java | `v0.2.1` (`8df737b7667415ddb34f2f725d5fcace5ff62b5c`) | MIT |
+| `libuv-v1.35.0.tar.gz` | libuv | v1.35.0 | MIT |
+| `speexdsp-1.2.0.tar.gz` | SpeexDSP | 1.2.0 | BSD-3-Clause |
 
-## Usage
+Patches under `patches/`, applied to the extracted sources:
 
-```
+| Patch | Target | Purpose |
+|---|---|---|
+| `roc-toolkit-r2-remove-ldpc.patch` (Patch B) | roc-toolkit | Removes the LDPC-Staircase FEC codec entry. |
+| `openfec-r2-remove-ldpc-ccbysa.patch` (Patch A) | OpenFEC | Removes the LDPC-Staircase sources (the only CC-BY-SA-licensed files). |
+| `openfec-r2-fixup-01-of_cb-and-exclude-ldpc-apps.patch` | OpenFEC | Adds the missing `#include "of_cb.h"` and excludes the LDPC example/test targets from the build. |
+
+The extracted roc-toolkit tree is checked against the `ROC_TOOLKIT_TREE` content
+hash (`9ad74e48a3437a70c7d1782661e8691f2b913be8`) before Patch B is applied.
+
+## Prerequisites
+
+- Android NDK `21.1.6352462`.
+- `scons` (4.x), `ragel` 6.10, GNU `make`, and `cmake` + `ninja`.
+- A POSIX shell; the build runs on an x86_64 host targeting
+  `aarch64-linux-android29`.
+
+The toolchain is discovered from the environment:
+
+- NDK via `NDK_DIR`, or `ANDROID_NDK_HOME` / `ANDROID_NDK_ROOT` / `ANDROID_HOME` /
+  `ANDROID_SDK_ROOT` / `~/Android/Sdk`.
+- `scons`, `ragel`, `make`, `cmake` from `PATH`, or overridden with the `SCONS`,
+  `RAGEL`, `MAKE`, `CMAKE` environment variables.
+
+Host-specific overrides can be placed in a gitignored `scripts/native/local.env`,
+which the script sources when present. In CI/F-Droid the toolchain comes from the
+buildserver environment (see `fdroid/com.roclet.mic.yml`).
+
+## Build commands
+
+```sh
 scripts/native/build-native.sh all        # sources -> build -> strip -> jni -> stage -> validate
 scripts/native/build-native.sh clean      # remove src/, out/, logs/
 ```
 
 Individual steps: `sources`, `build`, `strip`, `jni`, `stage`, `validate`.
 
-The build is offline. It verifies every archive/patch hash, cross-checks the
-Roc Toolkit content tree (`9ad74e48…`), and fails on any mismatch.
+The build is offline. It verifies every archive and patch hash, cross-checks the
+roc-toolkit content tree, and fails on any mismatch.
 
-## Toolchain
+### Validation (`validate`)
 
-Discovered from the environment, or overridden in a **gitignored**
-`scripts/native/local.env` (see `local.env` in this workspace for an example
-pointing at the project-local `.dev/` toolchain):
+`libroc.so` must expose exactly 29 `roc_*` symbols, have `SONAME=libroc.so`, the
+`NEEDED` set `libandroid.so,libc++_shared.so,libc.so,libdl.so,liblog.so,libm.so`,
+be AArch64, contain no LDPC/staircase symbols, and be stripped. `libroc_jni.so`
+must import exactly 26 `roc_*` symbols, all resolved by `libroc.so`.
 
-- Android NDK `21.1.6352462` (`ANDROID_NDK_HOME` / `NDK_DIR`, or under `ANDROID_HOME/ndk`)
-- `scons` (4.x), `ragel` 6.10, GNU `make`, `cmake` + `ninja`
+## Output locations and generated files
 
-On F-Droid these come from the buildserver environment; see
-`fdroid/com.roclet.mic.yml`.
+Generated under `scripts/native/` (all gitignored):
 
-## Acceptance checks (`validate`)
+```
+src/                      extracted + patched sources
+  roc-toolkit/
+  openfec-1.4.2.7/
+  roc-java/
+out/
+  lib/libroc.so           installed (unstripped) Roc Toolkit library
+  include/roc/*.h         Roc public headers
+  libroc.so               stripped library selected by 'strip'
+  libroc_jni.so           roc-java JNI bridge
+  strip-trials/           strip-mode candidates compared by 'strip'
+  jniLibs/arm64-v8a/      staged libroc.so, libroc_jni.so, libc++_shared.so
+logs/                     scons and cmake logs
+```
 
-`libroc.so` must expose exactly 29 `roc_*` symbols, `SONAME=libroc.so`, the
-expected `NEEDED` set, be AArch64, contain no LDPC/staircase symbols, and be
-stripped. `libroc_jni.so` must import exactly 26 `roc_*` symbols, all resolved by
-`libroc.so`.
+`:roc-android` consumes `out/jniLibs/arm64-v8a/` and
+`src/roc-java/src/main/java`.
 
-## Reproducibility notes
+## Reproducibility notes and known limitations
 
-- The OpenFEC dist tarball is generated deterministically from the patched tree
-  (its throwaway `.git`, created for tree hashing, is excluded).
-- `libroc.so` embeds absolute source paths in `.rodata`; the final binary is
-  therefore sensitive to the checkout path. This does not affect behaviour.
+- `build` generates the OpenFEC dist tarball expected by roc-toolkit's
+  `build-3rdparty` step deterministically from the patched tree (excluding the
+  throwaway `.git` used for tree hashing), and copies the vendored libuv/SpeexDSP
+  archives into roc-toolkit's `3rdparty/_distfiles/`. The build fails if OpenFEC
+  would be downloaded instead of using the vendored tarball.
+- `strip` selects the first of `--strip-all` / `--strip-unneeded` that preserves
+  the `validate` invariants.
+- `jni` configures the roc-java JNI bridge with `ANDROID_PLATFORM=android-26` and
+  `ANDROID_STL=c++_shared`.
 - Roc Toolkit's `install` target has no dependency on the library, so `build`
-  runs a compile step and then a separate install step.
+  runs a compile step and then a separate `install` step.
+- `libroc.so` embeds absolute source paths in `.rodata`, so the binary bytes
+  depend on the checkout path. This does not affect behaviour.
+
+## Licenses and attribution
+
+The third-party license and notice texts are bundled into the app as the
+`@raw/third_party_notices` resource (kept from resource shrinking by
+`app/src/main/res/raw/keep.xml`) and inventoried in
+[`THIRD-PARTY-NOTICES.md`](../../THIRD-PARTY-NOTICES.md): Roc Toolkit (MPL-2.0),
+OpenFEC (CeCILL-C), roc-java and libuv (MIT), SpeexDSP (BSD-3-Clause). Roc
+Toolkit's MPL-2.0 corresponding source is the upstream pin `13da01d5…` plus
+Patch B, committed here. The OpenFEC CeCILL-C compatibility question is
+unresolved; see `THIRD-PARTY-NOTICES.md` for details.
