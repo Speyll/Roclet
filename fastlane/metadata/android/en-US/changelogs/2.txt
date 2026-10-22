@@ -1,0 +1,2 @@
+Finalized third-party and OpenFEC licensing notices.
+Cleaned up F-Droid packaging and reproducibility documentation.

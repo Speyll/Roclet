@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.1
+
+- Finalized third-party and OpenFEC licensing notices.
+- Cleaned up F-Droid packaging and reproducibility documentation.
+
 ## 0.1.0
 
 First public release.

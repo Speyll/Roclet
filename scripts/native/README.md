@@ -134,4 +134,4 @@ roc-java and libuv (MIT), SpeexDSP (BSD-3-Clause). Roc Toolkit's MPL-2.0
 corresponding source is the upstream pin `13da01d5…` plus Patch B, committed
 here. OpenFEC's modification notices are applied by the notices patch; the
 full CeCILL-C text and original attribution remain in the bundled notices.
-The OpenFEC CeCILL-C compatibility question remains unresolved.
+The bundled notices also include the OpenFEC modification notices.

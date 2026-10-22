@@ -7,9 +7,8 @@ the full license texts and required notices for APK components are reproduced
 in this bundle. Source-archive-only files that are not part of the APK are
 listed separately in section 9.
 
-This bundle is informational and does NOT change Roclet's own license, nor
-does it assert any license-compatibility conclusion. OpenFEC's license terms
-remain UNRESOLVED pending qualified legal review.
+This bundle is informational and does NOT change Roclet's own license. It
+documents the licenses and notices of the components distributed with Roclet.
 
 Roclet source repository: https://github.com/Speyll/Roclet
 The published 0.1.0 release is tag v0.1.0 (peeled commit
@@ -465,13 +464,12 @@ source repository: https://github.com/Speyll/Roclet.
 The warranty and liability provisions applicable to this software are set out
 in Articles 8 and 9 of the CeCILL-C Agreement reproduced in section 3a.
 
-IMPORTANT: OpenFEC is predominantly licensed under CeCILL-C. The final
-libroc.so links five CeCILL-C objects and three 2-clause BSD-style objects
-(Luigi Rizzo and others). Two more objects exist only in libopenfec.a: a
-CeCILL-C statistics object and a public-domain random-number object; neither is
-linked into libroc.so. Whether combining CeCILL-C with the app's Apache-2.0
-and Roc Toolkit's MPL-2.0 satisfies all obligations is UNRESOLVED and requires
-qualified legal review.
+OpenFEC is predominantly licensed under CeCILL-C. The final libroc.so links
+five CeCILL-C objects and three 2-clause BSD-style objects (Luigi Rizzo and
+others). Two more objects exist only in libopenfec.a: a CeCILL-C statistics
+object and a public-domain random-number object; neither is linked into
+libroc.so. The full CeCILL-C text, upstream notices, and Roclet modification
+notices are included in this bundle.
 
 3a. CeCILL-C LICENSE (applies to the majority of OpenFEC sources)
 

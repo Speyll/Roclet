@@ -27,9 +27,9 @@ RepoType: git
 Repo: https://github.com/Speyll/Roclet
 
 Builds:
-  - versionName: 0.1.0
-    versionCode: 1
-    commit: a76a3bd89503cb1322e12fc3817f38060e622d83
+  - versionName: 0.1.1
+    versionCode: 2
+    commit: PLACEHOLDER_REPLACE_WITH_0.1.1_RELEASE_COMMIT
     sudo:
       - apt-get update || apt-get update
       - apt-get install -y build-essential cmake ninja-build scons ragel
@@ -42,10 +42,10 @@ Builds:
     ndk: 21.1.6352462
 
 MaintainerNotes: |-
-  Builds.commit pins the reviewed source commit
-  a76a3bd89503cb1322e12fc3817f38060e622d83. For future releases, update it to
-  the exact reviewed source commit; v0.1.0 predates the notices corrections and
-  must not be used.
+  Builds.commit is a placeholder for the exact full v0.1.1 release commit.
+  Replace it with the tagged release commit before F-Droid submission. Roclet
+  0.1.1 supersedes 0.1.0 for F-Droid and contains the finalized third-party
+  notices and hold-removal changes.
 
   Native dependency: roc-android is built from source, not the upstream prebuilt
   AAR. scripts/native/build-native.sh uses the pinned sources under
@@ -54,11 +54,13 @@ MaintainerNotes: |-
   module. It needs scons (4.x), ragel 6.10, GNU make/build-essential, cmake,
   ninja, and the NDK above. The buildserver installs these via the 'sudo' step.
 
-  The local F-Droid recipe build passed, but the isolated production buildserver
-  environment has not been verified.
+  Local native and unsigned Gradle release builds pass; the isolated production
+  buildserver environment has not been verified.
 
-  OpenFEC licensing is UNRESOLVED (CeCILL-C): the patched OpenFEC source is built
-  into libroc.so. Do not submit until a qualified licensing review clears this.
+  OpenFEC is predominantly licensed under CeCILL-C and its patched source is
+  built into libroc.so. The app's bundled third-party notices contain the
+  CeCILL-C text, upstream notices, and Roclet's modification notices for the
+  normal F-Droid licence review.
 
   Release signing: app/build.gradle attaches the release signing config only when
   a signing-properties file is present, so an unsigned release builds and
@@ -66,3 +68,5 @@ MaintainerNotes: |-
 
 AutoUpdateMode: None
 UpdateCheckMode: Tags
+CurrentVersion: 0.1.1
+CurrentVersionCode: 2
