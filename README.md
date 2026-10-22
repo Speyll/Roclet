@@ -87,4 +87,4 @@ Run `./gradlew :app:assembleDebug` before submitting changes.
 ## License
 
 Roclet is licensed under [Apache-2.0](LICENSE). Third-party components retain
-their respective licenses; see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+their respective licenses.

@@ -9,8 +9,7 @@ listed separately in section 9.
 
 This bundle is informational and does NOT change Roclet's own license, nor
 does it assert any license-compatibility conclusion. OpenFEC's license terms
-remain UNRESOLVED pending qualified legal review; see THIRD-PARTY-NOTICES.md
-in the source repository.
+remain UNRESOLVED pending qualified legal review.
 
 Roclet source repository: https://github.com/Speyll/Roclet
 The published 0.1.0 release is tag v0.1.0 (peeled commit

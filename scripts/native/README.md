@@ -119,9 +119,7 @@ logs/                     scons and cmake logs
 
 The third-party license and notice texts are bundled into the app as the
 `@raw/third_party_notices` resource (kept from resource shrinking by
-`app/src/main/res/raw/keep.xml`) and inventoried in
-[`THIRD-PARTY-NOTICES.md`](../../THIRD-PARTY-NOTICES.md): Roc Toolkit (MPL-2.0),
-OpenFEC (CeCILL-C), roc-java and libuv (MIT), SpeexDSP (BSD-3-Clause). Roc
-Toolkit's MPL-2.0 corresponding source is the upstream pin `13da01d5…` plus
-Patch B, committed here. The OpenFEC CeCILL-C compatibility question is
-unresolved; see `THIRD-PARTY-NOTICES.md` for details.
+`app/src/main/res/raw/keep.xml`): Roc Toolkit (MPL-2.0), OpenFEC (CeCILL-C),
+roc-java and libuv (MIT), SpeexDSP (BSD-3-Clause). Roc Toolkit's MPL-2.0
+corresponding source is the upstream pin `13da01d5…` plus Patch B, committed
+here. The OpenFEC CeCILL-C compatibility question remains unresolved.
