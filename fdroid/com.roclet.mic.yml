@@ -29,7 +29,7 @@ Repo: https://github.com/Speyll/Roclet
 Builds:
   - versionName: 0.1.0
     versionCode: 1
-    commit: cfe9e3a5ec6fadf130e28cdd5ed36d0d2f36dc33
+    commit: a76a3bd89503cb1322e12fc3817f38060e622d83
     sudo:
       - apt-get update || apt-get update
       - apt-get install -y build-essential cmake ninja-build scons ragel
