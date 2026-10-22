@@ -9,6 +9,7 @@ plugins {
 android {
     namespace 'org.rocstreaming.roctoolkit'
     compileSdk 36
+    ndkVersion '21.1.6352462'
 
     defaultConfig {
         minSdk 26

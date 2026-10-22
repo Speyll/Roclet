@@ -35,6 +35,7 @@ def rocletReleaseSigningReady = rocletReleaseStoreFile != null
 android {
     namespace 'com.roclet.mic'
     compileSdk 36
+    ndkVersion '21.1.6352462'
 
     defaultConfig {
         applicationId 'com.roclet.mic'
