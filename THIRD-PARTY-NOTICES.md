@@ -169,11 +169,11 @@ strings are unchanged byte-for-byte.
 Roclet source repository: `https://github.com/Speyll/Roclet`. The published
 `0.1.0` release is tag `v0.1.0`, an annotated tag whose peeled commit is
 `891ed9f7cb5a034fde5f6d5e59fe453b20b59490`. This public release reference does
-not by itself establish that any particular APK was built by F-Droid. For a
-future F-Droid build, the recipe's `Builds.commit` field must identify the exact
-source commit once established; the recipe in this repository still retains its
-TODO placeholder. This reference does not by itself establish that any licensing
-obligation is satisfied.
+not by itself establish that any particular APK was built by F-Droid. The
+F-Droid recipe in this repository now pins the reviewed release commit
+`cfe9e3a5ec6fadf130e28cdd5ed36d0d2f36dc33`; that metadata reference does not
+itself establish that an F-Droid build or publication has occurred, nor that any
+licensing obligation is satisfied.
 
 ## Obligations, and where they are met
 

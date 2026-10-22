@@ -29,8 +29,7 @@ Repo: https://github.com/Speyll/Roclet
 Builds:
   - versionName: 0.1.0
     versionCode: 1
-    commit: '<TODO: reviewed release commit/tag containing the notices corrections
-      — do not use v0.1.0>'
+    commit: cfe9e3a5ec6fadf130e28cdd5ed36d0d2f36dc33
     sudo:
       - apt-get update || apt-get update
       - apt-get install -y build-essential cmake ninja-build scons ragel
@@ -43,9 +42,10 @@ Builds:
     ndk: 21.1.6352462
 
 MaintainerNotes: |-
-  DRAFT: replace the placeholder Builds.commit with the exact reviewed release
-  commit/tag before submission. The published v0.1.0 predates the notices
-  corrections and must not be used.
+  Builds.commit pins the reviewed release commit
+  cfe9e3a5ec6fadf130e28cdd5ed36d0d2f36dc33. For future releases, update it to
+  the exact reviewed release commit; v0.1.0 predates the notices corrections and
+  must not be used.
 
   Native dependency: roc-android is built from source, not the upstream prebuilt
   AAR. scripts/native/build-native.sh consumes committed pinned sources under
