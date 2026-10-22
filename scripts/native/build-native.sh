@@ -108,6 +108,7 @@ do_sources() {
     check_sha256 "$PATCH_DIR/$PATCH_B_FILE"     "$PATCH_B_SHA"     "Patch B"
     check_sha256 "$PATCH_DIR/$PATCH_A_FILE"     "$PATCH_A_SHA"     "Patch A"
     check_sha256 "$PATCH_DIR/$PATCH_FIXUP_FILE" "$PATCH_FIXUP_SHA" "OpenFEC fixup"
+    check_sha256 "$PATCH_DIR/$PATCH_NOTICES_FILE" "$PATCH_NOTICES_SHA" "OpenFEC notices"
     check_sha256 "$VENDOR_DIR/$ROC_TOOLKIT_ARCHIVE" "$ROC_TOOLKIT_ARCHIVE_SHA" "roc-toolkit archive"
     check_sha256 "$VENDOR_DIR/$OPENFEC_ARCHIVE"     "$OPENFEC_ARCHIVE_SHA"     "OpenFEC archive"
     check_sha256 "$VENDOR_DIR/$ROC_JAVA_ARCHIVE"    "$ROC_JAVA_ARCHIVE_SHA"    "roc-java archive"
@@ -139,6 +140,8 @@ do_sources() {
     git -C "$OPENFEC_DIR" apply "$PATCH_DIR/$PATCH_A_FILE"
     git -C "$OPENFEC_DIR" apply --check "$PATCH_DIR/$PATCH_FIXUP_FILE"
     git -C "$OPENFEC_DIR" apply "$PATCH_DIR/$PATCH_FIXUP_FILE"
+    git -C "$OPENFEC_DIR" apply --check "$PATCH_DIR/$PATCH_NOTICES_FILE"
+    git -C "$OPENFEC_DIR" apply "$PATCH_DIR/$PATCH_NOTICES_FILE"
     [ -d "$OPENFEC_DIR/src/lib_stable/ldpc_staircase" ] && die "Patch A postcondition failed" || true
     log "openfec patched content tree: $(git -C "$OPENFEC_DIR" add -A && git -C "$OPENFEC_DIR" write-tree)"
 

@@ -36,6 +36,16 @@ Patches under `patches/`, applied to the extracted sources:
 | `roc-toolkit-r2-remove-ldpc.patch` (Patch B) | roc-toolkit | Removes the LDPC-Staircase FEC codec entry. |
 | `openfec-r2-remove-ldpc-ccbysa.patch` (Patch A) | OpenFEC | Removes the LDPC-Staircase sources (the only CC-BY-SA-licensed files). |
 | `openfec-r2-fixup-01-of_cb-and-exclude-ldpc-apps.patch` | OpenFEC | Adds the missing `#include "of_cb.h"` and excludes the LDPC example/test targets from the build. |
+| `openfec-r2-modification-notices.patch` | OpenFEC | Adds CeCILL-C 5.2 modification notices to the five surviving modified files. |
+
+The recorded date of Roclet's OpenFEC project modifications is 2026-10-19, as
+recorded by commit `891ed9f7cb5a034fde5f6d5e59fe453b20b59490`, which introduced
+the two original patches. This is the project's recorded modification date; it
+does not independently establish when each underlying edit was first made. The
+modifications were made by Speyll <speyll@protonmail.com>. Patch A removes 38
+files; the five surviving modified files receive in-file notices from the
+notices patch. The pinned archive plus the patches reconstruct the complete
+modified OpenFEC source.
 
 The extracted roc-toolkit tree is checked against the `ROC_TOOLKIT_TREE` content
 hash (`9ad74e48a3437a70c7d1782661e8691f2b913be8`) before Patch B is applied.
@@ -122,4 +132,6 @@ The third-party license and notice texts are bundled into the app as the
 `app/src/main/res/raw/keep.xml`): Roc Toolkit (MPL-2.0), OpenFEC (CeCILL-C),
 roc-java and libuv (MIT), SpeexDSP (BSD-3-Clause). Roc Toolkit's MPL-2.0
 corresponding source is the upstream pin `13da01d5…` plus Patch B, committed
-here. The OpenFEC CeCILL-C compatibility question remains unresolved.
+here. OpenFEC's modification notices are applied by the notices patch; the
+full CeCILL-C text and original attribution remain in the bundled notices.
+The OpenFEC CeCILL-C compatibility question remains unresolved.

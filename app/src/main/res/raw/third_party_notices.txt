@@ -448,10 +448,22 @@ SOFTWARE.
 Source: https://github.com/roc-streaming/openfec
 Pinned revision: 9e83faa4e3b02fb9f8565ad809fa555b68d3b770 (tag v1.4.2.7).
 
-Modifications: Roclet applies 'openfec-r2-remove-ldpc-ccbysa.patch' (R2 Patch A)
-and 'openfec-r2-fixup-01-of_cb-and-exclude-ldpc-apps.patch', which remove the
-LDPC-Staircase codec files (including the CC-BY-SA hamming-weight files) from
-the patched build tree and make a small build fix.
+Modifications: Speyll <speyll@protonmail.com> for the Roclet project. Recorded
+Roclet project modification date: 2026-10-19, as recorded by the project's
+modification commit; this does not independently establish when each underlying
+edit was first made. Roclet applies 'openfec-r2-remove-ldpc-ccbysa.patch' (R2
+Patch A), which removes 38 LDPC-Staircase, 2D-parity, and linear-binary-code
+files
+(including the CC-BY-SA hamming-weight files), and
+'openfec-r2-fixup-01-of_cb-and-exclude-ldpc-apps.patch', which adds a missing
+include and excludes example/test targets. The five surviving modified files
+carry in-file CeCILL-C 5.2 notices from
+'openfec-r2-modification-notices.patch'. The complete modified source is
+reconstructible from the pinned archive plus these patches in the Roclet
+source repository: https://github.com/Speyll/Roclet.
+
+The warranty and liability provisions applicable to this software are set out
+in Articles 8 and 9 of the CeCILL-C Agreement reproduced in section 3a.
 
 IMPORTANT: OpenFEC is predominantly licensed under CeCILL-C. The final
 libroc.so links five CeCILL-C objects and three 2-clause BSD-style objects
@@ -1254,9 +1266,11 @@ named LICENCE.TXT; the applicable text is LICENCE_CeCILL-C_V1-en.txt,
 reproduced in 3a. The embedded LDPC attribution is preserved even though the
 LDPC codec is not compiled.
 
-The OpenFEC source archive also contains 'Licence_CeCILL_V2-en.txt'. No
-compiled source file references CeCILL (non-C); its applicability is unresolved
-and it is NOT reproduced here pending legal review.
+The OpenFEC source archive also contains 'Licence_CeCILL_V2-en.txt'. The only
+source files that reference CeCILL (rather than CeCILL-C) are the six
+LDPC-Staircase files removed by R2 Patch A; none of them is compiled into
+libroc.so. The archive retains their original notices and the CeCILL V2 text
+for source reproducibility.
 
 3e. OpenFEC source archive only - CC-BY-SA 3.0 files (not compiled into libroc.so)
 
@@ -1300,13 +1314,12 @@ They carry the following header:
    */
 
 R2 Patch A removes these files from the patched build tree. They are absent
-from libopenfec.a and libroc.so. The archive itself remains committed under
-scripts/native/vendor/ and would be part of a source distribution. The F-Droid
-recipe's scanignore entry only hides the archive from binary scanning; it does
-not remove the archive from source. The archive carries the CC-BY-SA header and
-license URI but no separate full CC-BY-SA 3.0 text file. Whether the source
-distribution requires additional CC-BY-SA notice text is unresolved and needs
-qualified legal review.
+from libopenfec.a, libroc.so, and the APK. The archive itself remains committed
+under scripts/native/vendor/ and would be part of a source distribution. The
+F-Droid recipe's scanignore entry only hides the archive from binary scanning;
+it does not remove the archive from source. The archive carries the CC-BY-SA
+header, including the licence name and URI, but no separate full CC-BY-SA 3.0
+text file.
 
 --------------------------------------------------------------------------------
 4. libuv (statically linked into libroc.so) - MIT License
