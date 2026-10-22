@@ -1,14 +1,5 @@
-# Candidate F-Droid build recipe for Roclet (com.roclet.mic).
-#
-# This file is a draft that belongs in the fdroiddata repository
-# (metadata/com.roclet.mic.yml) when submitting an inclusion request. It is kept
-# here as a reference and is NOT active. The public repository URL is confirmed;
-# only the release commit/tag for the 0.1.0 release remains to be filled in, then
-# copy it into fdroiddata via a merge request.
-
 Categories:
   - Multimedia
-  - Audio
 License: Apache-2.0
 AuthorName: Speyll
 SourceCode: https://github.com/Speyll/Roclet
@@ -36,37 +27,26 @@ RepoType: git
 Repo: https://github.com/Speyll/Roclet
 
 Builds:
-  - versionName: '0.1.0'
+  - versionName: 0.1.0
     versionCode: 1
-    commit: <TODO: 'v0.1.0' tag or the release commit hash — set after the first release commit is created>
-    # The Gradle project root is the repository root (settings.gradle includes
-    # ':app' and ':roc-android'); do NOT set subdir.
-    gradle:
-      - yes
-    # F-Droid builds the release unsigned and signs it afterwards, so the output
-    # is the 'unsigned' APK. app/build.gradle only attaches a signing config when
-    # a signing-properties file is present, so this is the expected name here.
-    output: app/build/outputs/apk/release/app-release-unsigned.apk
-    ndk: 21.1.6352462
-    # Build-time toolchain for the native dependency. The Debian buildserver
-    # base does not preinstall these; install them per-build. See MaintainerNotes.
+    commit: '<TODO: reviewed release commit/tag containing the notices corrections
+      — do not use v0.1.0>'
     sudo:
       - apt-get update || apt-get update
       - apt-get install -y build-essential cmake ninja-build scons ragel
-    # The native dependency (libroc.so / libroc_jni.so / libc++_shared.so) and
-    # the roc-java Java sources are produced from pinned sources + patches by
-    # scripts/native/build-native.sh, entirely offline (committed source archives
-    # + patches under scripts/native/). This must run in 'build', not 'prebuild':
-    # F-Droid scans the source tree between them and does not allow binaries to
-    # be produced during 'prebuild'.
-    build:
-      - scripts/native/build-native.sh all
-    # The vendored upstream source archives are plain source tarballs; hide them
-    # from the binary scanner (they are not prebuilt binaries).
+    gradle:
+      - yes
+    output: app/build/outputs/apk/release/app-release-unsigned.apk
     scanignore:
       - scripts/native/vendor
+    build: scripts/native/build-native.sh all
+    ndk: 21.1.6352462
 
 MaintainerNotes: |-
+  DRAFT: replace the placeholder Builds.commit with the exact reviewed release
+  commit/tag before submission. The published v0.1.0 predates the notices
+  corrections and must not be used.
+
   Native dependency: roc-android is built from source, not the upstream prebuilt
   AAR. scripts/native/build-native.sh consumes committed pinned sources under
   scripts/native/vendor/ + patches under scripts/native/patches/, verifies every

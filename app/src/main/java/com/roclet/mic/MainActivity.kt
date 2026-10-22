@@ -13,7 +13,10 @@ import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.view.View
+import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -76,6 +79,7 @@ class MainActivity : AppCompatActivity() {
             updateDestSummary()
         }
         binding.btnMic.setOnClickListener { onMicClicked() }
+        binding.btnNotices.setOnClickListener { showThirdPartyNotices() }
 
         render(MicSenderService.State.STOPPED, null)
     }
@@ -265,6 +269,27 @@ class MainActivity : AppCompatActivity() {
     private fun showError(message: String) {
         binding.tvStatus.text = message
         binding.tvStatus.setTextColor(ContextCompat.getColor(this, R.color.status_error))
+    }
+
+    private fun showThirdPartyNotices() {
+        val notices = resources.openRawResource(R.raw.third_party_notices)
+            .bufferedReader()
+            .use { it.readText() }
+        val view = layoutInflater.inflate(R.layout.dialog_third_party_notices, null)
+        view.findViewById<TextView>(R.id.tvNotices).text = notices
+
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(R.string.third_party_notices)
+            .setView(view)
+            .setPositiveButton(android.R.string.ok, null)
+            .create()
+        dialog.setOnShowListener {
+            dialog.window?.setLayout(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        }
+        dialog.show()
     }
 
     private fun setFieldsEnabled(enabled: Boolean) {

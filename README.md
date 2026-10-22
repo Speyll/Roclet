@@ -64,7 +64,7 @@ Release builds are signed with Roclet's release key, so uninstall a debug build 
 ## Usage
 
 - Tap the settings icon to set the receiver address and the source/repair ports. They
-  are remembered between launches.
+  are remembered between launches. The same panel includes **Third-party notices**.
 - Tap the microphone button to start, and grant the microphone permission when asked.
   On Android 13+ also allow notifications so the ongoing notification can appear.
 - The status line shows *Starting*, *Streaming*, or *Stopped*. Tap the button again, or

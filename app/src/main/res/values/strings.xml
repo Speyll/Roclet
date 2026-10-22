@@ -17,6 +17,7 @@
     <string name="settings">Settings</string>
     <string name="settings_expanded">Settings, expanded</string>
     <string name="settings_collapsed">Settings, collapsed</string>
+    <string name="third_party_notices">Third-party notices</string>
     <string name="dest_ports_format">Ports %1$s / %2$s</string>
     <string name="dest_summary_none">No destination configured</string>
     <string name="cd_start_stream">Start streaming</string>

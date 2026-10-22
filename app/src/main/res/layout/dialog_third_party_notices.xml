@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="true"
+    android:paddingStart="24dp"
+    android:paddingTop="8dp"
+    android:paddingEnd="24dp"
+    android:paddingBottom="8dp"
+    android:scrollbars="vertical">
+
+    <TextView
+        android:id="@+id/tvNotices"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autoLink="web"
+        android:fontFamily="monospace"
+        android:lineSpacingMultiplier="1.1"
+        android:textColor="@color/text_primary"
+        android:textIsSelectable="true"
+        android:textSize="12sp" />
+</ScrollView>

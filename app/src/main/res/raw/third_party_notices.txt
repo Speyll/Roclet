@@ -3,12 +3,21 @@ Roclet (com.roclet.mic) - Third-Party Notices and License Texts
 
 Roclet itself is licensed under the Apache License, Version 2.0 (the app's
 LICENSE file). Roclet distributes the third-party components listed below;
-the full license texts and required notices are reproduced in this bundle.
+the full license texts and required notices for APK components are reproduced
+in this bundle. Source-archive-only files that are not part of the APK are
+listed separately in section 9.
 
 This bundle is informational and does NOT change Roclet's own license, nor
 does it assert any license-compatibility conclusion. OpenFEC's license terms
 remain UNRESOLVED pending qualified legal review; see THIRD-PARTY-NOTICES.md
-and .dev/review/ in the source repository.
+in the source repository.
+
+Roclet source repository: https://github.com/Speyll/Roclet
+The published 0.1.0 release is tag v0.1.0 (peeled commit
+891ed9f7cb5a034fde5f6d5e59fe453b20b59490). This public release reference does
+not establish that any particular APK was built by F-Droid. A future F-Droid
+build must record its exact source commit in the F-Droid metadata once
+established.
 
 Provenance (exact sources used to assemble this file):
   1. Roc Toolkit     : scripts/native/vendor/roc-toolkit_13da01d5.tar.gz (LICENSE, debian/copyright)
@@ -442,13 +451,16 @@ Pinned revision: 9e83faa4e3b02fb9f8565ad809fa555b68d3b770 (tag v1.4.2.7).
 
 Modifications: Roclet applies 'openfec-r2-remove-ldpc-ccbysa.patch' (R2 Patch A)
 and 'openfec-r2-fixup-01-of_cb-and-exclude-ldpc-apps.patch', which remove the
-LDPC-Staircase codec (and its CC-BY-SA tooling) and a small build fix.
+LDPC-Staircase codec files (including the CC-BY-SA hamming-weight files) from
+the patched build tree and make a small build fix.
 
-IMPORTANT: OpenFEC is predominantly licensed under CeCILL-C. Some bundled
-files derive from code under a 2-clause BSD-style license (Luigi Rizzo and
-others) and one file is public domain. Whether combining CeCILL-C with the
-app's Apache-2.0 and Roc Toolkit's MPL-2.0 satisfies all obligations is
-UNRESOLVED and requires qualified legal review.
+IMPORTANT: OpenFEC is predominantly licensed under CeCILL-C. The final
+libroc.so links five CeCILL-C objects and three 2-clause BSD-style objects
+(Luigi Rizzo and others). Two more objects exist only in libopenfec.a: a
+CeCILL-C statistics object and a public-domain random-number object; neither is
+linked into libroc.so. Whether combining CeCILL-C with the app's Apache-2.0
+and Roc Toolkit's MPL-2.0 satisfies all obligations is UNRESOLVED and requires
+qualified legal review.
 
 3a. CeCILL-C LICENSE (applies to the majority of OpenFEC sources)
 
@@ -473,7 +485,7 @@ the two main principles guiding its drafting:
 The authors of the CeCILL-C (for Ce[a] C[nrs] I[nria] L[ogiciel] L[ibre])
 license are:
 
-Commissariat � l'Energie Atomique - CEA, a public scientific, technical
+Commissariat à l'Energie Atomique - CEA, a public scientific, technical
 and industrial research establishment, having its principal place of
 business at 25 rue Leblanc, immeuble Le Ponant D, 75015 Paris, France.
 
@@ -792,7 +804,7 @@ The Licensee expressly undertakes:
 
 The Licensee undertakes not to directly or indirectly infringe the
 intellectual property rights of the Holder and/or Contributors on the
-Software and to take, where applicable, vis-�-vis its staff, any and all
+Software and to take, where applicable, vis-à-vis its staff, any and all
 measures required to ensure respect of said intellectual property rights
 of the Holder and/or Contributors.
 
@@ -1210,20 +1222,92 @@ Version 1.0 dated 2006-09-05.
 // requires.
 //
 
-3d. OpenFEC embedded copyright/attribution notice (from of_openfec_api.c),
-    which must be preserved:
+3d. OpenFEC embedded version and copyright strings
+    (from src/lib_common/of_openfec_api.c; reproduced verbatim)
+
+of_version_string:
+
+    OpenFEC.org - Version 1.4.2, December 16th, 2014
+
+of_copyrights_string:
 
     OpenFEC.org - Because free, open source AL-FEC codes and codecs matter
     Copyright (c) 2003-2014 INRIA - All rights reserved
-    LDPC codecs: Copyright (c) 2003-2014 INRIA; contains code from R. Neal,
-      Copyright (c) 1995-2003 by Radford M. Neal
-    Reed-Solomon codecs: contains code from L. Rizzo,
-      Copyright (c) 1997-98 Luigi Rizzo (luigi@iet.unipi.it); portions derived
-      from code by Phil Karn, Robert Morelos-Zaragoza and Hari Thirumoorthy.
+	
+    LDPC codecs:
+	Copyright (c) 2003-2014 INRIA - All rights reserved
+	This library contains code from R. Neal:
+	Copyright (c) 1995-2003 by Radford M. Neal
+	
+    Reed-Solomon codecs:
+	This library contains code from L. Rizzo:
+	Copyright (c) 1997-98 Luigi Rizzo (luigi@iet.unipi.it)
+	Portions derived from code by Phil Karn (karn@ka9q.ampr.org), 
+	Robert Morelos-Zaragoza (robert@spectra.eng.hawaii.edu) and Hari 
+	Thirumoorthy (harit@spectra.eng.hawaii.edu), Aug 1995 
+	
+    See the associated LICENCE.TXT file for licence information
 
-Note: the OpenFEC source archive also contains 'Licence_CeCILL_V2-en.txt'.
-No compiled source file references CeCILL (non-C); its applicability is
-unresolved and it is NOT reproduced here pending legal review.
+The of_copyrights_string value begins with a newline. Its blank separator lines
+contain a tab; the Phil Karn / Robert Morelos-Zaragoza / Hari Thirumoorthy
+lines end with a space. The pinned OpenFEC archive does not contain a file
+named LICENCE.TXT; the applicable text is LICENCE_CeCILL-C_V1-en.txt,
+reproduced in 3a. The embedded LDPC attribution is preserved even though the
+LDPC codec is not compiled.
+
+The OpenFEC source archive also contains 'Licence_CeCILL_V2-en.txt'. No
+compiled source file references CeCILL (non-C); its applicability is unresolved
+and it is NOT reproduced here pending legal review.
+
+3e. OpenFEC source archive only - CC-BY-SA 3.0 files (not compiled into libroc.so)
+
+The pinned pristine source archive contains these files:
+
+  src/lib_common/linear_binary_codes_utils/binary_matrix/of_hamming_weight.c
+  src/lib_common/linear_binary_codes_utils/binary_matrix/of_hamming_weight.h
+
+They carry the following header:
+
+  /*
+   * Source: Wikipedia http://en.wikipedia.org/wiki/Hamming_weight
+   *
+   * Creative Commons Attribution-ShareAlike 3.0 Unported License.
+   *
+   * You are free:
+   *
+   *   to Share — to copy, distribute and transmit the work
+   *   to Remix — to adapt the work
+   *
+   * Under the following conditions:
+   *
+   *   Attribution — You must attribute the work in the manner specified by the author or licensor
+   *                 (but not in any way that suggests that they endorse you or your use of the work).
+   *   Share Alike — If you alter, transform, or build upon this work, you may distribute the
+   *                  resulting work only under the same, similar or a compatible license.
+   *
+   * With the understanding that:
+   *
+   *   Waiver — Any of the above conditions can be waived if you get permission from the copyright holder.
+   *   Public Domain — Where the work or any of its elements is in the public domain under applicable law,
+   *                   that status is in no way affected by the license.
+   *   Other Rights — In no way are any of the following rights affected by the license:
+   *     Your fair dealing or fair use rights, or other applicable copyright exceptions and limitations;
+   *     The author's moral rights;
+   *     Rights other persons may have either in the work itself or in how the work is used, such as publicity
+   *                   or privacy rights.
+   *   Notice — For any reuse or distribution, you must make clear to others the license terms of this work.
+   *
+   * The best way to do this is with a link to this web page: http://creativecommons.org/licenses/by-sa/3.0/
+   */
+
+R2 Patch A removes these files from the patched build tree. They are absent
+from libopenfec.a and libroc.so. The archive itself remains committed under
+scripts/native/vendor/ and would be part of a source distribution. The F-Droid
+recipe's scanignore entry only hides the archive from binary scanning; it does
+not remove the archive from source. The archive carries the CC-BY-SA header and
+license URI but no separate full CC-BY-SA 3.0 text file. Whether the source
+distribution requires additional CC-BY-SA notice text is unresolved and needs
+qualified legal review.
 
 --------------------------------------------------------------------------------
 4. libuv (statically linked into libroc.so) - MIT License
@@ -1666,9 +1750,10 @@ THE SOFTWARE.
 7. Other Apache-2.0 components (AndroidX core-ktx/appcompat, Kotlin stdlib)
 --------------------------------------------------------------------------------
 
-These are licensed under the Apache License, Version 2.0. The full text is
-the app's LICENSE file. AndroidX and Kotlin ship no separate NOTICE files
-for the modules used here.
+These are licensed under the Apache License, Version 2.0. The complete
+Apache-2.0 text is reproduced in section 6 above; the app's source repository
+also contains its LICENSE file. AndroidX and Kotlin ship no separate NOTICE
+files for the modules used here.
 
 --------------------------------------------------------------------------------
 8. Build-time-only components (not distributed in the APK)
@@ -1677,5 +1762,46 @@ for the modules used here.
 Hedley (https://nemequ.github.io/hedley/), used as a header-only macro
 library while compiling Roc Toolkit, is dedicated to the public domain under
 CC0-1.0. It is not a runtime component and imposes no attribution condition.
+
+--------------------------------------------------------------------------------
+9. Source-archive-only files (NOT included in the APK)
+--------------------------------------------------------------------------------
+
+The pinned source archives also contain the following files. They are not
+compiled into the APK and are not linked into libroc.so. They are listed for
+source-distribution completeness; this is not a legal conclusion.
+
+9a. OpenFEC: tools/descr_stats_v1.2/descr_stats.c
+
+License: GPL-2.0-or-later. The pinned archive member
+openfec-1.4.2.7/tools/descr_stats_v1.2/descr_stats.c says:
+
+   *  This program is free software; you can redistribute it and/or
+   *  modify it under the terms of the GNU General Public License
+   *  as published by the Free Software Foundation; either version 2
+   *  of the License, or (at your option) any later version.
+
+The file is not among the 10 objects in libopenfec.a, is not linked into
+libroc.so, and is not an APK component. The pinned archive contains no full GNU
+GPL text, and no full GNU GPL text was found in the tracked repository files
+or in either pinned archive. Whether a full GPL copy and additional
+source-distribution steps are required is unresolved and needs qualified legal
+review.
+
+9b. SpeexDSP: ltmain.sh
+
+License: GPL-2.0-or-later with the GNU Libtool special exception. The pinned
+archive member speexdsp-1.2.0/ltmain.sh includes this exact exception:
+
+  # As a special exception to the GNU General Public License,
+  # if you distribute this file as part of a program or library that
+  # is built using GNU Libtool, you may include this file under the
+  # same distribution terms that you use for the rest of that program.
+
+ltmain.sh is an Autotools build script, not a compiled or linked component of
+the APK. The SpeexDSP archive's COPYING is its BSD-3-Clause license, and the
+archive contains no full GNU GPL text. Whether the exception covers this source
+distribution and whether a GPL copy is required is unresolved and needs
+qualified legal review.
 
 End of third-party notices.
